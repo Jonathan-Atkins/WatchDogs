@@ -10,6 +10,16 @@ jobs:
   test: 
     runs-on: ubuntu-latest #this my runner environment - ubuntu is linux based
 
+    services:
+      postgres: # Starts a PostgreSQL service for tests
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+
     steps: 
       - name: checkout the code #this can be viewed as  string. This step clones the repo. 
         uses: actions/checkout@v4 #using a built-in GitHub action to checkout the repo.
@@ -25,10 +35,11 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y postgresql-client libpq-dev nodejs yarn
 
-      - name: setup database
-        run: |
-
-          bin/rails db:create db:migrate
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: bin/rails db:create db:migrate
 
       - name: installing gems
         run: bundle install
