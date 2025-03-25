@@ -8,7 +8,7 @@ on:
       - main
 jobs:
   test: 
-    runs_on: ubuntu-latest #this my runner environment - ubuntu is linux based
+    runs-on: ubuntu-latest #this my runner environment - ubuntu is linux based
 
     steps: 
       - name: checkout the code #this can be viewed as  string. This step clones the repo. 
