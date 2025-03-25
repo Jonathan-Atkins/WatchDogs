@@ -17,7 +17,7 @@ jobs:
       - name: step-up ruby
         uses: ruby/setup-ruby@v1
         with: 
-          ruby-version: 3.2
+          ruby-version: 3.2.2
           bundler-cache: true #This prevents you from needed to redownload the gems
 
       - name: install dependencies
