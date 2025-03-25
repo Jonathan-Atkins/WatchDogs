@@ -1,5 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
+require 'webmock/rspec'
+
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
@@ -65,9 +67,22 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 end
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
+
+  Shoulda::Matchers.configure do |config|
+    config.integrate do |with|
+      with.test_framework :rspec
+      with.library :rails
+  end
+
+  VCR.configure do |config|
+    config.before_record do |i|
+      i.response.body.force_encoding('UTF-8')
+    end
+    config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
+    config.hook_into :webmock
+    config.filter_sensitive_data('<HIDE_YO_KEYS>') { Rails.application.credentials.tmdb[:key] }
+    config.default_cassette_options = { re_record_interval: 7.days }
+    config.configure_rspec_metadata!
+    config.allow_http_connections_when_no_cassette = true
   end
 end
