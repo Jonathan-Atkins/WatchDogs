@@ -1,0 +1,37 @@
+name: RSpec Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test: 
+    runs_on: ubuntu-latest #this my runner environment - ubuntu is linux based
+
+    steps: 
+      - name: checkout the code #this can be viewed as  string. This step clones the repo. 
+        uses: actions/checkout@v4 #using a built-in GitHub action to checkout the repo.
+
+      - name: step-up ruby
+        uses: ruby/setup-ruby@v1
+        with: 
+          ruby-version: 3.2
+          bundler-cache: true #This prevents you from needed to redownload the gems
+
+      - name: install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client libpq-dev nodejs yarn
+
+      - name: setup database
+        run: |
+          cp config/database.yml.github config/database.yml
+          bin/rails db:create db:migrate
+
+      - name: installing gems
+        run: bundle install
+
+      - name: run tests
+        run: bundle exec rspec
