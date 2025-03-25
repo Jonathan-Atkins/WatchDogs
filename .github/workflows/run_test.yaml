@@ -27,7 +27,7 @@ jobs:
 
       - name: setup database
         run: |
-          cp config/database.yml config/database.yml
+
           bin/rails db:create db:migrate
 
       - name: installing gems
