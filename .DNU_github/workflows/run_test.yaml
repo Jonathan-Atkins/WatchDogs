@@ -1,0 +1,55 @@
+name: RSpec Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test: 
+    runs-on: ubuntu-latest # Using Ubuntu for your runner environment
+
+    services:
+      postgres: # Starts a PostgreSQL service for tests
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-timeout=30s
+          --health-start-period=10s
+          --health-retries=5
+
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4 # Checking out the repository
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with: 
+          ruby-version: 3.2.2
+          bundler-cache: true # Ensures gems are cached to avoid redownloading them
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client libpq-dev nodejs yarn
+
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: |
+          bin/rails db:create
+          bin/rails db:migrate
+
+      - name: Install gems
+        run: bundle install
+
+      - name: Run tests
+        run: bundle exec rspec
