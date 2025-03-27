@@ -16,7 +16,7 @@ class MovieGateway
   def self.connect_to_gateway(endpoint, params = {})
     response     = Faraday.new('https://api.themoviedb.org').get(endpoint) do |req|
       req.params = params
-      req.params[:api_key] = Rails.application.credentials.tmdb[:key]
+      req.params[:api_key] = ENV["TMDB_KEY"] || Rails.application.credentials.tmdb[:key]
     end
     parse_data(response)
   end

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "Access All Movies", type: :request do
+describe "Access All the Movies", type: :request do
   it "returns all top-rated movies", :vcr do
     get "/api/v1/movies"
     expect(response).to be_successful
