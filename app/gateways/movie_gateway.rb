@@ -6,7 +6,7 @@ class MovieGateway
   end
   
   def self.search_movies(query)
-    movies = connect_to_gateway("/3/search/movie?query=#{query}")
+    movies = connect_to_gateway("/3/search/movie", {query: query})
     movies.map { |m| Movie.new(m) }
   end
 
