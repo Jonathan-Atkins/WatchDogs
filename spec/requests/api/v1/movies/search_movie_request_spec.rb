@@ -1,7 +1,7 @@
 require "rails_helper"
 
-describe "Search One Movie", type: :request do
-  describe "Search Movie Request" do
+describe "Top Moives", type: :request do
+  describe "GET search/movies" do
     context "Happy Paths" do
       it "returns movies matching the search query", :vcr do
         get "/api/v1/movies", params: { query: "Inception" }
@@ -14,6 +14,7 @@ describe "Search One Movie", type: :request do
         expect(movies.count).to be > 0
 
         movies.each do |movie|
+          require 'pry'; binding.pry
           attrs = movie[:attributes]
           expect(movie[:id]).to be_a(String)
           expect(movie[:type]).to eq("movie")

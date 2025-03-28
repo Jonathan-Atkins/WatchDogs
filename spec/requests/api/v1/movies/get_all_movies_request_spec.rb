@@ -1,8 +1,8 @@
 require "rails_helper"
 
 describe "Top Movies", type: :request do
-  describe "GET /api/v1/movies" do
-    context "when the request is successful (happy path)" do
+  describe "GET movies" do
+    context "Happy Paths" do
       it "returns top-rated movies", :vcr do
         get "/api/v1/movies"
 
