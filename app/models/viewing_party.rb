@@ -11,6 +11,7 @@ class ViewingParty < ApplicationRecord
   validate :end_time_after_start_time
   validate :movie_id_in_top_rated
   validate :movie_duration
+  validate :validate_invitees
 
   private
 
@@ -27,13 +28,26 @@ class ViewingParty < ApplicationRecord
   end
 
   def movie_id_in_top_rated
-    unless top_rated_movies.any? { |movie| movie.id == movie_id.to_s }
+    unless top_rated_movies.any? { |movie| movie.id.to_i == movie_id }
       errors.add(:movie_id, "must be a valid movie from the top-rated list")
     end
   end
 
   def movie_duration
-    top_rated_movies.each do |movie|
+    return if start_time.blank? || end_time.blank?
+  
+    movie = MovieGateway.find_movie_details(self.movie_id)
+    duration = movie.runtime
+  
+    if ((end_time - start_time) / 60).to_i < duration
+      errors.add(:end_time, "#{self.name} party must be at least as long as #{self.movie_title} film")
+    end
+  end
+
+  def validate_invitees
+    invalid_user_ids = viewing_party_users.map(&:user_id).reject { |user_id| User.exists?(user_id) }
+    if invalid_user_ids.any?
+      errors.add(:invitees, "contains invalid users")
     end
   end
 end
