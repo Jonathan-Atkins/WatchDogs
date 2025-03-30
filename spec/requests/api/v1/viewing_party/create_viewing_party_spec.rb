@@ -26,10 +26,10 @@ RSpec.describe 'Create a Viewing Party', type: :request do
       }
     end
 
-    context 'when the request is valid' do
-      it 'creates a new viewing party and returns a success response' do 
+    context 'Happy Path' do
+      it 'creates a valid viewing party' do
         post '/api/v1/viewing_parties', params: valid_params
-        expect(response).to be_successful
+        expect(response.status).to be 201
         json_response = JSON.parse(response.body)
 
         expect(ViewingParty.count).to eq 1
@@ -40,16 +40,59 @@ RSpec.describe 'Create a Viewing Party', type: :request do
       end
     end
 
-    context 'when the request is invalid' do
+    context 'Sad Path' do
       it 'returns an error if required fields are missing' do
-        invalid_params = valid_params.dup
-        invalid_params[:viewing_party][:name] = nil
+        invalid_params = valid_params.except(:viewing_party)
+        invalid_params[:viewing_party] = valid_params[:viewing_party].except(:movie_id)
 
         post '/api/v1/viewing_parties', params: invalid_params
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).not_to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response["errors"]).to include("Movie can't be blank")
+      end
+
+      it 'returns an error if name is missing' do
+        invalid_params = valid_params.except(:viewing_party)
+        invalid_params[:viewing_party] = valid_params[:viewing_party].except(:name)
+
+        post '/api/v1/viewing_parties', params: invalid_params
+
+        expect(response).not_to be_successful
         json_response = JSON.parse(response.body)
         expect(json_response["errors"]).to include("Name can't be blank")
+      end
+
+      it 'returns an error if start_time is missing' do
+        invalid_params = valid_params.except(:viewing_party)
+        invalid_params[:viewing_party] = valid_params[:viewing_party].except(:start_time)
+
+        post '/api/v1/viewing_parties', params: invalid_params
+
+        expect(response).not_to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response["errors"]).to include("Start time can't be blank")
+      end
+
+      it 'returns an error if end_time is missing' do
+        invalid_params = valid_params.except(:viewing_party)
+        invalid_params[:viewing_party] = valid_params[:viewing_party].except(:end_time)
+
+        post '/api/v1/viewing_parties', params: invalid_params
+
+        expect(response).not_to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response["errors"]).to include("End time can't be blank")
+      end
+
+      it 'returns an error if invitees are missing' do
+        invalid_params = valid_params.except(:invitees)
+
+        post '/api/v1/viewing_parties', params: invalid_params
+
+        expect(response).not_to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response["errors"]).to include("Invitees can't be blank")
       end
     end
   end

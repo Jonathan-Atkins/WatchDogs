@@ -34,8 +34,9 @@ class ViewingParty < ApplicationRecord
   end
 
   def movie_duration
-    return if start_time.blank? || end_time.blank?
+    return if start_time.nil? || end_time.nil? || movie_id.nil?
     movie = MovieGateway.find_movie_details(movie_id)
+    # require 'pry'; binding.pry
     duration = movie.runtime
     if ((end_time - start_time) / 60).to_i < duration
       errors.add(:end_time, "#{self.name} party must be at least as long as #{self.movie_title} film")
@@ -43,6 +44,7 @@ class ViewingParty < ApplicationRecord
   end
 
   def validate_invitees
+    return if start_time.nil? || end_time.nil? || movie_id.nil?
     invalid_user_ids = viewing_party_users.map(&:user_id).reject { |user_id| User.exists?(user_id) }
     if invalid_user_ids.any?
       errors.add(:invitees, "contains invalid users")
