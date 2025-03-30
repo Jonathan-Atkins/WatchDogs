@@ -1,5 +1,6 @@
-class Api::V1::ViewingPartyController < ApplicationController
+class Api::V1::ViewingPartiesController < ApplicationController
   def create
+    require 'pry'; binding.pry
     viewing_party = ViewingParty.new(viewing_party_params)
 
     if viewing_party.save
