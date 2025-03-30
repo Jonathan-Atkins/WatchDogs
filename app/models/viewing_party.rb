@@ -35,10 +35,8 @@ class ViewingParty < ApplicationRecord
 
   def movie_duration
     return if start_time.blank? || end_time.blank?
-  
-    movie = MovieGateway.find_movie_details(self.movie_id)
+    movie = MovieGateway.find_movie_details(movie_id)
     duration = movie.runtime
-  
     if ((end_time - start_time) / 60).to_i < duration
       errors.add(:end_time, "#{self.name} party must be at least as long as #{self.movie_title} film")
     end

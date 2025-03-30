@@ -1,8 +1,6 @@
 class Api::V1::ViewingPartiesController < ApplicationController
   def create
-    require 'pry'; binding.pry
-    viewing_party = ViewingParty.new(viewing_party_params)
-
+    viewing_party = ViewingParty.create(viewing_party_params)
     if viewing_party.save
       params[:invitees].each do |invitee_id|
         ViewingPartyUser.create!(viewing_party_id: viewing_party.id, user_id: invitee_id)
