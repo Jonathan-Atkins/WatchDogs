@@ -13,11 +13,11 @@ User.create!(name: "Lionel Messi", username: "futbol_geek", password: "test123")
 # You can also create other records needed for your application, such as movies, genres, etc.
 # Example for viewing parties (ensure these are created after users, if applicable)
 
-viewing_party = ViewingParty.create!(name: "Movie Night", start_time: DateTime.now, end_time: DateTime.now + 4.hours, movie_id: 278, movie_title: "Inception", host_id: User.first.id)
+viewing_party1 = ViewingParty.create!(name: "Movie Night", start_time: DateTime.now, end_time: DateTime.now + 4.hours, movie_id: 278, movie_title: "Inception", host_id: User.first.id)
 
 # Create some invitees for the viewing party, assuming you have a relationship with ViewingPartyUser
-ViewingPartyUser.create!(viewing_party_id: viewing_party.id, user_id: User.second.id)
-ViewingPartyUser.create!(viewing_party_id: viewing_party.id, user_id: User.third.id)
+ViewingPartyUser.create!(viewing_party_id: viewing_party1.id, user_id: User.second.id)
+ViewingPartyUser.create!(viewing_party_id: viewing_party1.id, user_id: User.third.id)
 
 # Ensure other data or objects are created as needed for your app
 # Example:
