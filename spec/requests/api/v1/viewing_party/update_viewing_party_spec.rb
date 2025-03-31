@@ -41,7 +41,7 @@ RSpec.describe 'Update a Viewing Party', type: :request do
     end
 
     context 'Happy Path' do
-      it 'updates a valid viewing party and ensures invitees 1 & 2 are retained' do
+      it 'updates a valid viewing party and ensures invitees include old and new invitees' do
         patch "/api/v1/viewing_parties/#{viewing_party1.id}", params: update_params
 
         expect(response.status).to eq 200
@@ -53,7 +53,7 @@ RSpec.describe 'Update a Viewing Party', type: :request do
 
         updated_invitees = ViewingPartyUser.where(viewing_party_id: viewing_party1.id).pluck(:user_id)
 
-        expect(updated_invitees).to contain_exactly(invitee1.id, invitee2.id, invitee3.id)
+        expect(updated_invitees).to contain_exactly(invitee1.id,invitee2.id,invitee3.id)
       end
     end
 
