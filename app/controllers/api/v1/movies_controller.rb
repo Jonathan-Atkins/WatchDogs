@@ -24,7 +24,16 @@ class Api::V1::MoviesController < ApplicationController
   end
 
   def show
-    movie = MovieGateway.find_movie_details(params[:id])
-    require 'pry'; binding.pry
+    begin
+      movie = MovieGateway.find_movie_details(params[:id])
+      if movie.nil?
+        error_message = ErrorMessage.new("Movie not found", 404)
+        render json: ErrorSerializer.format_error(error_message), status: :not_found
+      else
+        render json: MovieDetailSerializer.new(movie)
+      end
+    rescue StandardError => e
+      render json: { error: "Failed to fetch movies: #{e.message}" }, status: 500
+    end
   end
 end

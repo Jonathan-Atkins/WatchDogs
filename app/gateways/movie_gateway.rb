@@ -12,7 +12,7 @@ class MovieGateway
   def self.find_movie_details(movie_id)
     movie = connect_to_gateway("/3/movie/#{movie_id}")
     movie[:cast] = connect_to_gateway("/3/movie/#{movie_id}/credits")
-    Movie.new(movie, detailed: true)
+    Movie.new(movie, detailed: true) unless movie[:success] == false
   end
 
   private
