@@ -24,26 +24,9 @@ RSpec.describe 'Update a Viewing Party', type: :request do
       )
     end
 
-    let!(:viewing_party2) do 
-      ViewingParty.create!(
-        name: "Batman Night", 
-        start_time: DateTime.now, 
-        end_time: DateTime.now + 4.hours, 
-        movie_id: 155, 
-        movie_title: "The Dark Knight", 
-        host_id: host.id
-      )
-    end
-
-    let!(:viewing_party3) do 
-      ViewingParty.create!(
-        name: "Parasite Night", 
-        start_time: DateTime.now, 
-        end_time: DateTime.now + 4.hours, 
-        movie_id: 496243, 
-        movie_title: "Parasite", 
-        host_id: host.id
-      )
+    before do
+      ViewingPartyUser.create!(viewing_party_id: viewing_party1.id, user_id: invitee1.id)
+      ViewingPartyUser.create!(viewing_party_id: viewing_party1.id, user_id: invitee2.id)
     end
 
     let(:update_params) do 
@@ -53,25 +36,45 @@ RSpec.describe 'Update a Viewing Party', type: :request do
           movie_id: 238,
           movie_title: "The Godfather"
         },
-        invitees: [invitee3.id] # Fix: should be an array
+        invitees: [invitee3.id] 
       }
     end
 
     context 'Happy Path' do
-      it 'updates a valid viewing party' do
+      it 'updates a valid viewing party and ensures invitees 1 & 2 are retained' do
         patch "/api/v1/viewing_parties/#{viewing_party1.id}", params: update_params
 
         expect(response.status).to eq 200
 
-        json_response = JSON.parse(response.body)
-        expect(json_response["name"]).to eq("Updated Movie Night")
-        expect(json_response["movie_id"]).to eq(238)
-        expect(json_response["movie_title"]).to eq("The Godfather")
+        json_response = JSON.parse(response.body, symbolize_names: true)[:data][:attributes]
+        expect(json_response[:name]).to eq("Updated Movie Night")
+        expect(json_response[:movie_id]).to eq(238)
+        expect(json_response[:movie_title]).to eq("The Godfather")
+
+        updated_invitees = ViewingPartyUser.where(viewing_party_id: viewing_party1.id).pluck(:user_id)
+
+        expect(updated_invitees).to contain_exactly(invitee1.id, invitee2.id, invitee3.id)
       end
     end
 
     context 'Sad Path' do
-      xit 'returns an error if required fields are missing' do
+      it 'returns an error if the viewing party does not exist' do
+        patch "/api/v1/viewing_parties/99999", params: update_params
+        expect(response.status).to eq 404
+        expect(JSON.parse(response.body)['errors']).to include("Viewing Party 99999 Not Found")
+      end
+
+      it 'returns an error if no attributes or invitees are provided' do
+        patch "/api/v1/viewing_parties/#{viewing_party1.id}", params: {}
+        expect(response.status).to eq 400
+        expect(JSON.parse(response.body)['errors']).to include("At least one attribute must change")
+      end
+
+      it 'returns an error if required fields are missing' do
+        invalid_params = { viewing_party: { name: "" } }
+        patch "/api/v1/viewing_parties/#{viewing_party1.id}", params: invalid_params
+        expect(response.status).to eq 400
+        expect(JSON.parse(response.body)['errors']).to include("At least one attribute must change")
       end
     end
   end

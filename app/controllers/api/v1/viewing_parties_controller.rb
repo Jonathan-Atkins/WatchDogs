@@ -18,20 +18,27 @@ class Api::V1::ViewingPartiesController < ApplicationController
   end
 
   def update
-    require 'pry'; binding.pry
-    viewing_party = ViewingParty.find(params[:id].to_i))
-    if viewing_party.nil?
-      return render json: { errors: ["Viewing Party #{params[:id]} Not Found"] }
+    viewing_party = ViewingParty.find_by(id: params[:id].to_i)
+    return render json: { errors: ["Viewing Party #{params[:id]} Not Found"] }, status: :not_found unless viewing_party
+  
+    unless params[:viewing_party] && params[:invitees]
+      return render json: { errors: ["At least one attribute must change"] }, status: :bad_request
     end
+  
+    viewing_party.update!(viewing_party_params) if viewing_party_params.present?
+  
+    if params[:invitees].present?
+      params[:invitees].each do |invitee_id|
+        viewing_party.invitees << User.find(invitee_id) unless viewing_party.invitees.exists?(id: invitee_id)
+      end
+    end
+  
+    render json: ViewingPartySerializer.new(viewing_party), status: :ok
   end
 
   private
 
   def viewing_party_params
     params.require(:viewing_party).permit(:name, :start_time, :end_time, :movie_id, :movie_title, :host_id)
-  end
-
-  def updating_party_params
-    params.require(:viewing_party)
   end
 end

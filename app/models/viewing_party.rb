@@ -1,13 +1,10 @@
 class ViewingParty < ApplicationRecord
   has_many :viewing_party_users, dependent: :destroy
-  has_many :users, through: :viewing_party_users
+  has_many :invitees, through: :viewing_party_users, source: :user
   belongs_to :host, class_name: "User"
 
-  validates :name, presence: true
-  validates :start_time, presence: true
-  validates :end_time, presence: true
+  validates :name, :start_time, :end_time, :movie_title, presence: true
   validates :movie_id, presence: true, numericality: { only_integer: true, greater_than: 0 }
-  validates :movie_title, presence: true
   validate :end_time_after_start_time
   validate :movie_id_in_top_rated
   validate :movie_duration
