@@ -30,13 +30,13 @@ RSpec.describe 'Create a Viewing Party', type: :request do
       it 'creates a valid viewing party' do
         post '/api/v1/viewing_parties', params: valid_params
         expect(response.status).to be 201
-        json_response = JSON.parse(response.body)
-
+        json_response = JSON.parse(response.body, symbolize_names: :true)[:data]
         expect(ViewingParty.count).to eq 1
         expect(ViewingPartyUser.count).to eq 2
-        expect(json_response["data"]["attributes"]["name"]).to eq("Movie Night")
-        expect(json_response["data"]["attributes"]["movie_title"]).to eq("Inception")
-        expect(json_response["data"]["relationships"]["users"]["data"].map { |user| user["id"] }).to eq([invitee1.id.to_s, invitee2.id.to_s])
+        expect(json_response[:type]).to eq("viewing_party")
+        expect(json_response[:attributes][:name]).to eq("Movie Night")
+        expect(json_response[:attributes][:movie_title]).to eq("Inception")
+        expect(json_response[:relationships][:invitees][:data].map { |user| user[:id] }).to eq([invitee1.id.to_s, invitee2.id.to_s])
       end
     end
 

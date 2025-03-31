@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe ViewingParty, type: :model do
   describe "validations" do
     it { should have_many(:viewing_party_users).dependent(:destroy) }
-    it { should have_many(:users).through(:viewing_party_users) }
+    it { should have_many(:invitees).through(:viewing_party_users).source(:user) }
     it { should belong_to(:host).class_name('User') }
 
     it { should validate_presence_of(:name) }

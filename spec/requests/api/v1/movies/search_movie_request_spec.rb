@@ -14,7 +14,6 @@ describe "Top Moives", type: :request do
         expect(movies.count).to be > 0
 
         movies.each do |movie|
-          require 'pry'; binding.pry
           attrs = movie[:attributes]
           expect(movie[:id]).to be_a(String)
           expect(movie[:type]).to eq("movie")
