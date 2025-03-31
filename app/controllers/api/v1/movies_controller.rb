@@ -22,4 +22,9 @@ class Api::V1::MoviesController < ApplicationController
       render json: { error: "Failed to fetch movies: #{e.message}" }, status: 500
     end
   end
+
+  def show
+    movie = MovieGateway.find_movie_details(params[:id])
+    require 'pry'; binding.pry
+  end
 end
